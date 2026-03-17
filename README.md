@@ -29,7 +29,6 @@ cycling-ripplet/
 2. Copy `template.html` into the trip folder, rename it for the ride
 3. Add the GPX file into the trip's `gpx/` folder
 4. Open the HTML file and update the CONFIG section at the top:
-   - Change the `<title>` tag to the ride name
    - Update `GPX_FILE` to match the GPX filename
    - Set `EXTRA_KM` if you missed the start (default `0`)
 5. Commit and push — GitHub Pages publishes automatically

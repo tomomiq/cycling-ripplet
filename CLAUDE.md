@@ -20,7 +20,7 @@ A collection of self-contained HTML files, one per cycling ride, hosted on GitHu
 
 ## Per-ride workflow
 
-Copy `template.html` into the trip folder, rename it. Add the GPX file to the trip's `gpx/` folder. Update `<title>`, `GPX_FILE`, and `EXTRA_KM` in the CONFIG section. Commit both files and push.
+Copy `template.html` into the trip folder, rename it. Add the GPX file to the trip's `gpx/` folder. Update `GPX_FILE` and `EXTRA_KM` in the CONFIG section. Commit both files and push.
 
 ## Squarespace embed
 
