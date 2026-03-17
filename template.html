@@ -13,6 +13,7 @@
 
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: fit-content; }
     body { font-family: system-ui, sans-serif; background: #fff; }
 
     #map-wrap { position: relative; }
@@ -45,6 +46,12 @@
     .stat-value { font-size: 1.15rem; font-weight: 600; color: #111; }
     .stat-label { font-size: 0.7rem; text-transform: uppercase;
                   letter-spacing: 0.05em; color: #888; margin-top: 2px; }
+    @media (max-width: 500px) {
+      #stats { padding: 10px 4px; gap: 4px; }
+      .stat { min-width: 60px; }
+      .stat-value { font-size: 0.95rem; }
+      .stat-label { font-size: 0.6rem; }
+    }
   </style>
 </head>
 <body>
@@ -65,7 +72,7 @@
   </div>
   <div class="stat">
     <div class="stat-value" id="stat-elevation">—</div>
-    <div class="stat-label">Elevation Gain</div>
+    <div class="stat-label">Elev Gain</div>
   </div>
   <div class="stat">
     <div class="stat-value" id="stat-weather">—</div>
