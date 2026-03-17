@@ -2,7 +2,7 @@
 
 ## What this project is
 
-A collection of self-contained HTML files, one per cycling ride, hosted on GitHub Pages at `https://tomomiq.github.io/cycling-ripplet/`. Each file is embedded in a Squarespace travel log page via an iframe Embed Block.
+A collection of HTML files, one per cycling ride, hosted on GitHub Pages at `https://tomomiq.github.io/cycling-ripplet/`. Each file is embedded in a Squarespace travel log page via an iframe Embed Block.
 
 ## Stack
 
@@ -16,12 +16,13 @@ A collection of self-contained HTML files, one per cycling ride, hosted on GitHu
 - GPX files live in a `gpx/` subfolder within each trip folder. The HTML references the GPX by relative path (`gpx/filename.gpx`)
 - No build step, no backend, no API keys
 - Weather is fetched client-side from Open-Meteo using the ride's start coordinates and date parsed from the GPX timestamps
-- Map height uses `calc(100vh - 60px)` so it fills the iframe exactly regardless of height set in Squarespace
+- Map height is fixed at `420px`
+- `generate.py` creates HTML files from GPX files and outputs `embed_codes.txt` — this file is gitignored
 
 ## Per-ride workflow
 
-Copy `template.html` into the trip folder, rename it. Add the GPX file to the trip's `gpx/` folder. Update `GPX_FILE` and `EXTRA_KM` in the CONFIG section. Commit both files and push.
+Drop GPX files into the trip's `gpx/` folder. Run `python3 generate.py <trip_folder>`. Set `EXTRA_KM` in any file where the Strava start was missed. Commit and push. Use `embed_codes.txt` for Squarespace embed codes.
 
 ## Squarespace embed
 
-Personal plan — uses Embed Block with raw `<iframe>` tag (not URL, as Squarespace tries oEmbed and rejects non-oEmbed URLs). Recommended iframe height: 480px.
+Personal plan — uses Embed Block with raw `<iframe>` tag (not URL, as Squarespace tries oEmbed and rejects non-oEmbed URLs). Recommended iframe height: 480px. Include `style="display:block"` on the iframe to avoid inline spacing gaps.
