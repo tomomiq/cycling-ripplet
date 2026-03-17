@@ -61,5 +61,16 @@ def main():
 
     print(f"\n{created} created, {skipped} skipped.")
 
+    # Write embed codes for all HTML files in the trip folder
+    all_html = sorted(f for f in os.listdir(trip) if f.endswith('.html'))
+    embed_path = os.path.join(trip, 'embed_codes.txt')
+    with open(embed_path, 'w') as f:
+        for html_filename in all_html:
+            url = f"https://tomomiq.github.io/cycling-ripplet/{trip}/{html_filename}"
+            f.write(f"{html_filename}\n")
+            f.write(f'<iframe src="{url}" width="100%" height="480" frameborder="0" scrolling="no" style="display:block"></iframe>\n')
+            f.write("\n")
+    print(f"  wrote   {embed_path}")
+
 if __name__ == '__main__':
     main()
