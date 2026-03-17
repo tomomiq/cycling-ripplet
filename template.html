@@ -154,6 +154,7 @@
   .on('loaded', function(e) {
     var gpx = e.target;
     initialBounds = gpx.getBounds();
+    map.invalidateSize();
     map.fitBounds(initialBounds, { padding: [20, 20] });
 
     // Start (green) and end (red) dot markers
