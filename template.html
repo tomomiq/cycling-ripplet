@@ -12,7 +12,6 @@
 
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: fit-content; }
     body { font-family: system-ui, sans-serif; background: #fff; }
 
     #map-wrap { position: relative; }
@@ -38,7 +37,6 @@
       padding: 12px 8px;
       background: #f5f5f5;
       border-top: 1px solid #e0e0e0;
-      flex-wrap: wrap;
       gap: 8px;
     }
     .stat { text-align: center; min-width: 80px; }
@@ -88,15 +86,14 @@
   crossorigin="anonymous"></script>
 
 <script>
-  // ── CONFIG — update these two lines for each new ride ───
+  // ── CONFIG — update these lines for each new ride ───────
   var GPX_FILE    = 'gpx/YOUR_RIDE_FILENAME.gpx';
   var ROUTE_COLOR = '#e05c00';
   var EXTRA_KM    = 0;  // add missed distance in km, e.g. 3.2
   // ────────────────────────────────────────────────────────
 
   var map = L.map('map', {
-    zoomControl: false,
-    attributionControl: true
+    zoomControl: false
   });
   var initialBounds;
   L.Control.MapButtons = L.Control.extend({
@@ -227,8 +224,8 @@
         var rideEndH   = endTime.getUTCHours();
 
         var rideTemps = [], rideCodes = [];
-        hours.forEach(function(h, i) {
-          var hh = parseInt(h.slice(11, 13), 10); // UTC hour from string
+        hours.forEach(function(timeStr, i) {
+          var hh = parseInt(timeStr.slice(11, 13), 10); // UTC hour from string
           if (hh >= rideStartH && hh <= rideEndH) {
             rideTemps.push(temps[i]);
             rideCodes.push(codes[i]);
