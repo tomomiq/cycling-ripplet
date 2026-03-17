@@ -100,6 +100,27 @@
     attributionControl: true
   });
   L.control.zoom({ position: 'topright' }).addTo(map);
+
+  var initialBounds;
+  L.Control.Reset = L.Control.extend({
+    options: { position: 'topright' },
+    onAdd: function() {
+      var btn = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+      var a   = L.DomUtil.create('a', '', btn);
+      a.innerHTML = '⊙';
+      a.title     = 'Reset view';
+      a.href      = '#';
+      a.style.fontSize   = '16px';
+      a.style.lineHeight = '26px';
+      L.DomEvent.on(a, 'click', function(e) {
+        L.DomEvent.stopPropagation(e);
+        L.DomEvent.preventDefault(e);
+        if (initialBounds) map.fitBounds(initialBounds, { padding: [20, 20] });
+      });
+      return btn;
+    }
+  });
+  new L.Control.Reset().addTo(map);
   map.attributionControl.setPrefix('');
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -132,7 +153,8 @@
   })
   .on('loaded', function(e) {
     var gpx = e.target;
-    map.fitBounds(gpx.getBounds(), { padding: [20, 20] });
+    initialBounds = gpx.getBounds();
+    map.fitBounds(initialBounds, { padding: [20, 20] });
 
     // Start (green) and end (red) dot markers
     var pts   = gpx.getLayers()[0].getLatLngs();
