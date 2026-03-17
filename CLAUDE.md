@@ -13,14 +13,14 @@ A collection of self-contained HTML files, one per cycling ride, hosted on GitHu
 
 ## Architecture decisions
 
-- GPX data is embedded inline in each HTML file (not a separate file) to keep the repo to HTML-only files
+- GPX files live in a `gpx/` subfolder within each trip folder. The HTML references the GPX by relative path (`gpx/filename.gpx`)
 - No build step, no backend, no API keys
 - Weather is fetched client-side from Open-Meteo using the ride's start coordinates and date parsed from the GPX timestamps
 - Map height uses `calc(100vh - 60px)` so it fills the iframe exactly regardless of height set in Squarespace
 
 ## Per-ride workflow
 
-Copy `template.html`, update the `<title>`, paste GPX content into `var GPX_DATA`, set `EXTRA_KM` if needed, commit and push.
+Copy `template.html` into the trip folder, rename it. Add the GPX file to the trip's `gpx/` folder. Update `<title>`, `GPX_FILE`, and `EXTRA_KM` in the CONFIG section. Commit both files and push.
 
 ## Squarespace embed
 
