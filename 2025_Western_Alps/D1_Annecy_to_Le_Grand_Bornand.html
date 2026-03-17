@@ -41995,28 +41995,38 @@
     zoomControl: false,
     attributionControl: true
   });
-  L.control.zoom({ position: 'topright' }).addTo(map);
-
   var initialBounds;
-  L.Control.Reset = L.Control.extend({
+  L.Control.MapButtons = L.Control.extend({
     options: { position: 'topright' },
-    onAdd: function() {
-      var btn = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
-      var a   = L.DomUtil.create('a', '', btn);
-      a.innerHTML = '⊙';
-      a.title     = 'Reset view';
-      a.href      = '#';
-      a.style.fontSize   = '16px';
-      a.style.lineHeight = '26px';
-      L.DomEvent.on(a, 'click', function(e) {
-        L.DomEvent.stopPropagation(e);
-        L.DomEvent.preventDefault(e);
-        if (initialBounds) map.fitBounds(initialBounds, { padding: [20, 20] });
+    onAdd: function(map) {
+      var c = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+
+      var zi = L.DomUtil.create('a', 'leaflet-control-zoom-in', c);
+      zi.innerHTML = '+'; zi.title = 'Zoom in'; zi.href = '#';
+      L.DomEvent.on(zi, 'click', function(e) {
+        L.DomEvent.stopPropagation(e); L.DomEvent.preventDefault(e);
+        map.zoomIn();
       });
-      return btn;
+
+      var zo = L.DomUtil.create('a', 'leaflet-control-zoom-out', c);
+      zo.innerHTML = '−'; zo.title = 'Zoom out'; zo.href = '#';
+      L.DomEvent.on(zo, 'click', function(e) {
+        L.DomEvent.stopPropagation(e); L.DomEvent.preventDefault(e);
+        map.zoomOut();
+      });
+
+      var r = L.DomUtil.create('a', '', c);
+      r.innerHTML = '⊙'; r.title = 'Reset view'; r.href = '#';
+      r.style.fontSize = '16px'; r.style.lineHeight = '26px';
+      L.DomEvent.on(r, 'click', function(e) {
+        L.DomEvent.stopPropagation(e); L.DomEvent.preventDefault(e);
+        if (initialBounds) { map.invalidateSize(); map.fitBounds(initialBounds, { padding: [20, 20] }); }
+      });
+
+      return c;
     }
   });
-  new L.Control.Reset().addTo(map);
+  new L.Control.MapButtons().addTo(map);
   map.attributionControl.setPrefix('');
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
