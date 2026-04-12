@@ -27,7 +27,7 @@ def main():
         print(f"Error: no gpx/ subfolder found in '{trip}'")
         sys.exit(1)
 
-    gpx_files = sorted(f for f in os.listdir(gpx_dir) if f.endswith('.gpx'))
+    gpx_files = sorted(f for f in os.listdir(gpx_dir) if f.endswith('.gpx') and f != 'full_trip.gpx')
 
     if not gpx_files:
         print(f"No GPX files found in {gpx_dir}/")
