@@ -51,7 +51,7 @@ cycling-ripplet/
    ```
 7. Open `embed_codes.txt` — copy each iframe code into the corresponding Squarespace Embed Block
 
-## CONFIG options (top of each HTML file)
+## CONFIG options (in each HTML file)
 
 | Variable | Description |
 |---|---|
