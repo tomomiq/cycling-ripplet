@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cycling Route</title>
+
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"
+    integrity="sha512-h9FcoyWjHcOcmEVkxOfTLnmZFWIH0iZhZT1H2TbOq55xssQGEJHEaIm+PgoUaZbRvQTNTluNOEfb1ZRy6D3BOw=="
+    crossorigin="anonymous" />
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #fff; }
+
+    #map-wrap { position: relative; }
+    #map { width: 100%; height: 420px; }
+
+    #touch-overlay {
+      display: none;
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      color: #fff;
+      font-size: 1rem;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 1000;
+    }
+    #map-wrap.show-overlay #touch-overlay { display: flex; }
+
+    #stats {
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 8px;
+      background: #f5f5f5;
+      border-top: 1px solid #e0e0e0;
+      gap: 8px;
+    }
+    .stat { text-align: center; min-width: 80px; }
+    .stat-value { font-size: 1.15rem; font-weight: 600; color: #111; }
+    .stat-label { font-size: 0.7rem; text-transform: uppercase;
+                  letter-spacing: 0.05em; color: #888; margin-top: 2px; }
+    @media (max-width: 500px) {
+      #stats { padding: 10px 4px; gap: 4px; }
+      .stat { min-width: 60px; }
+      .stat-value { font-size: 0.95rem; }
+      .stat-label { font-size: 0.6rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="map-wrap">
+  <div id="map"></div>
+  <div id="touch-overlay">Use two fingers to move the map</div>
+</div>
+
+<div id="stats">
+  <div class="stat">
+    <div class="stat-value" id="stat-distance">—</div>
+    <div class="stat-label">Distance</div>
+  </div>
+  <div class="stat">
+    <div class="stat-value" id="stat-time">—</div>
+    <div class="stat-label">Moving Time</div>
+  </div>
+  <div class="stat">
+    <div class="stat-value" id="stat-elevation">—</div>
+    <div class="stat-label">Elev Gain</div>
+  </div>
+  <div class="stat">
+    <div class="stat-value" id="stat-weather">—</div>
+    <div class="stat-label">Weather</div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"
+  integrity="sha512-puJW3E/qXDqYp9IfhAI54BJEaWIfloJ7JWs7OeD5i6ruC9JZL1gERT1wjtwXFlh7CjE7ZJ+/vcRZRkIYIb6p4g=="
+  crossorigin="anonymous"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/leaflet-gpx@1.7.0/gpx.js"
+  integrity="sha512-FatQYmF8k/KuvOgmwfRGRqlyzbG13etWz1GOO+JO6YQyhGgw5tVl9ihC9RS8S6iiS18CZAnZBvUoKHlGI6BTPQ=="
+  crossorigin="anonymous"></script>
+
+<script>
+  // ── CONFIG — update these lines for each new ride ───────
+  var GPX_FILE    = 'gpx/Sotres_short_loop.gpx';
+  var ROUTE_COLOR = '#e91e8c';
+  var EXTRA_KM    = 0;  // add missed distance in km, e.g. 3.2
+  // ────────────────────────────────────────────────────────
+
+  var map = L.map('map', {
+    zoomControl: false
+  });
+  var initialBounds;
+  L.Control.MapButtons = L.Control.extend({
+    options: { position: 'topright' },
+    onAdd: function(map) {
+      var c = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+
+      var zi = L.DomUtil.create('a', 'leaflet-control-zoom-in', c);
+      zi.innerHTML = '+'; zi.title = 'Zoom in'; zi.href = '#';
+      L.DomEvent.on(zi, 'click', function(e) {
+        L.DomEvent.stopPropagation(e); L.DomEvent.preventDefault(e);
+        map.zoomIn();
+      });
+
+      var zo = L.DomUtil.create('a', 'leaflet-control-zoom-out', c);
+      zo.innerHTML = '−'; zo.title = 'Zoom out'; zo.href = '#';
+      L.DomEvent.on(zo, 'click', function(e) {
+        L.DomEvent.stopPropagation(e); L.DomEvent.preventDefault(e);
+        map.zoomOut();
+      });
+
+      var r = L.DomUtil.create('a', '', c);
+      r.innerHTML = '⊙'; r.title = 'Reset view'; r.href = '#';
+      r.style.fontSize = '16px'; r.style.lineHeight = '26px';
+      L.DomEvent.on(r, 'click', function(e) {
+        L.DomEvent.stopPropagation(e); L.DomEvent.preventDefault(e);
+        if (initialBounds) { map.invalidateSize(); map.fitBounds(initialBounds, { padding: [20, 20] }); }
+      });
+
+      return c;
+    }
+  });
+  new L.Control.MapButtons().addTo(map);
+  map.attributionControl.setPrefix('');
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    maxZoom: 18
+  }).addTo(map);
+
+  // Two-finger touch guard
+  var wrap = document.getElementById('map-wrap');
+  wrap.addEventListener('touchstart', function(e) {
+    if (e.touches.length === 1) wrap.classList.add('show-overlay');
+  }, { passive: true });
+  wrap.addEventListener('touchend', function() {
+    wrap.classList.remove('show-overlay');
+  }, { passive: true });
+  wrap.addEventListener('touchmove', function(e) {
+    if (e.touches.length >= 2) wrap.classList.remove('show-overlay');
+  }, { passive: true });
+
+  // Load GPX
+  new L.GPX(GPX_FILE, {
+    async: true,
+    polyline_options: { color: ROUTE_COLOR, weight: 3, opacity: 0.9 },
+    marker_options: {
+      startIconUrl: null,
+      endIconUrl:   null,
+      shadowUrl:    null,
+      wptIconUrls:  { '': null }
+    }
+  })
+  .on('loaded', function(e) {
+    var gpx = e.target;
+    initialBounds = gpx.getBounds();
+    map.invalidateSize();
+    map.fitBounds(initialBounds, { padding: [20, 20] });
+
+    // Start (green) and end (red) dot markers
+    var pts   = gpx.getLayers()[0].getLatLngs();
+    var start = pts[0];
+    var end   = pts[pts.length - 1];
+
+    L.circleMarker(start, { radius: 7, color: '#fff', weight: 2,
+      fillColor: '#2ecc71', fillOpacity: 1 }).addTo(map);
+    L.circleMarker(end,   { radius: 7, color: '#fff', weight: 2,
+      fillColor: '#e74c3c', fillOpacity: 1 }).addTo(map);
+
+    // Stats
+    var distKm  = (gpx.get_distance() / 1000 + EXTRA_KM).toFixed(1) + ' km';
+
+    var movSecs = gpx.get_moving_time() / 1000;
+    var h = Math.floor(movSecs / 3600);
+    var m = Math.floor((movSecs % 3600) / 60);
+    var movTime = h + 'h ' + (m < 10 ? '0' : '') + m + 'm';
+
+    var elevM   = Math.round(gpx.get_elevation_gain()) + ' m';
+
+    document.getElementById('stat-distance').textContent  = distKm;
+    document.getElementById('stat-time').textContent      = movTime;
+    document.getElementById('stat-elevation').textContent = elevM;
+
+    // Weather — hourly average over the ride window from Open-Meteo
+    var startTime = gpx.get_start_time();
+    var endTime   = gpx.get_end_time();
+    var lat       = start.lat.toFixed(4);
+    var lon       = start.lng.toFixed(4);
+    var date      = startTime.toISOString().slice(0, 10);
+
+    var weatherUrl = 'https://archive-api.open-meteo.com/v1/archive'
+      + '?latitude=' + lat
+      + '&longitude=' + lon
+      + '&start_date=' + date
+      + '&end_date=' + date
+      + '&hourly=temperature_2m,weathercode'
+      + '&timezone=UTC';
+
+    var iconMap = {
+      0:'☀️', 1:'🌤️', 2:'⛅', 3:'☁️',
+      45:'🌫️', 48:'🌫️',
+      51:'🌦️', 53:'🌦️', 55:'🌦️',
+      61:'🌧️', 63:'🌧️', 65:'🌧️',
+      71:'❄️', 73:'❄️', 75:'❄️', 77:'❄️',
+      80:'🌦️', 81:'🌦️', 82:'🌦️',
+      85:'❄️', 86:'❄️',
+      95:'⛈️', 96:'⛈️', 99:'⛈️'
+    };
+
+    fetch(weatherUrl)
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        var hours = data.hourly.time;   // UTC strings e.g. "2025-08-10T09:00"
+        var temps = data.hourly.temperature_2m;
+        var codes = data.hourly.weathercode;
+
+        var rideStartH = startTime.getUTCHours();
+        var rideEndH   = endTime.getUTCHours();
+
+        var rideTemps = [], rideCodes = [];
+        hours.forEach(function(timeStr, i) {
+          var hh = parseInt(timeStr.slice(11, 13), 10); // UTC hour from string
+          if (hh >= rideStartH && hh <= rideEndH) {
+            rideTemps.push(temps[i]);
+            rideCodes.push(codes[i]);
+          }
+        });
+
+        var avgTemp = Math.round(
+          rideTemps.reduce(function(a, b) { return a + b; }, 0) / rideTemps.length
+        );
+
+        // Most frequent weather code during the ride
+        var freq = {};
+        rideCodes.forEach(function(c) { freq[c] = (freq[c] || 0) + 1; });
+        var modeCode = parseInt(
+          Object.keys(freq).reduce(function(a, b) { return freq[a] > freq[b] ? a : b; })
+        );
+
+        var icon = iconMap[modeCode] || '🌡️';
+        document.getElementById('stat-weather').textContent = icon + ' ' + avgTemp + '°C';
+      })
+      .catch(function() {
+        document.getElementById('stat-weather').textContent = '—';
+      });
+  })
+  .on('error', function(e) { console.error('GPX load error', e); })
+  .addTo(map);
+</script>
+
+</body>
+</html>
