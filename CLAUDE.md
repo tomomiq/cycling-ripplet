@@ -8,7 +8,7 @@ A collection of HTML files, one per cycling ride, hosted on GitHub Pages at `htt
 
 - **Leaflet.js 1.9.4** (cdnjs) — map rendering
 - **leaflet-gpx 1.7.0** (jsDelivr) — GPX parsing and stats
-- **OpenTopoMap** tiles — free, no API key, terrain/topo style
+- **CyclOSM** tiles — free, no API key, cycling/hiking optimised with elevation and pass info
 - **Open-Meteo archive API** — historical hourly weather, no API key
 
 ## Architecture decisions
