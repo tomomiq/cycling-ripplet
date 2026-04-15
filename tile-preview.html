@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tile Style Preview</title>
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"
+    integrity="sha512-h9FcoyWjHcOcmEVkxOfTLnmZFWIH0iZhZT1H2TbOq55xssQGEJHEaIm+PgoUaZbRvQTNTluNOEfb1ZRy6D3BOw=="
+    crossorigin="anonymous" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #f0f0f0; padding: 16px; }
+    h1 { font-size: 1.1rem; font-weight: 600; margin-bottom: 16px; color: #333; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .map-card { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.15); }
+    .map-label { padding: 8px 12px; font-size: 0.85rem; font-weight: 600; color: #222; border-bottom: 1px solid #eee; }
+    .map-sub { font-size: 0.75rem; font-weight: 400; color: #888; margin-left: 6px; }
+    .map { width: 100%; height: 320px; }
+  </style>
+</head>
+<body>
+  <h1>Tile style options — Pyrenees full trip route</h1>
+  <div class="grid">
+    <div class="map-card">
+      <div class="map-label">1. CartoDB Voyager <span class="map-sub">modern, clean, readable</span></div>
+      <div id="map1" class="map"></div>
+    </div>
+    <div class="map-card">
+      <div class="map-label">2. CartoDB Positron <span class="map-sub">minimal, light grey, elegant</span></div>
+      <div id="map2" class="map"></div>
+    </div>
+    <div class="map-card">
+      <div class="map-label">3. Esri World Topo <span class="map-sub">clean topo, muted colours</span></div>
+      <div id="map3" class="map"></div>
+    </div>
+    <div class="map-card">
+      <div class="map-label">4. CyclOSM <span class="map-sub">cycling-specific, shows passes &amp; elevation</span></div>
+      <div id="map4" class="map"></div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"
+    integrity="sha512-puJW3E/qXDqYp9IfhAI54BJEaWIfloJ7JWs7OeD5i6ruC9JZL1gERT1wjtwXFlh7CjE7ZJ+/vcRZRkIYIb6p4g=="
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet-gpx@1.7.0/gpx.js"
+    integrity="sha512-FatQYmF8k/KuvOgmwfRGRqlyzbG13etWz1GOO+JO6YQyhGgw5tVl9ihC9RS8S6iiS18CZAnZBvUoKHlGI6BTPQ=="
+    crossorigin="anonymous"></script>
+  <script>
+    var GPX = 'pyrenees/gpx/full_trip.gpx';
+    var ROUTE_COLOR = '#1565C0';
+
+    var tiles = [
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '© <a href="https://carto.com/">CARTO</a> | © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 19
+      }),
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '© <a href="https://carto.com/">CARTO</a> | © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 19
+      }),
+      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+        attribution: '© <a href="https://www.esri.com/">Esri</a>',
+        maxZoom: 18
+      }),
+      L.tileLayer('https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png', {
+        attribution: '© <a href="https://www.cyclosm.org/">CyclOSM</a> | © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 20
+      }),
+    ];
+
+    ['map1','map2','map3','map4'].forEach(function(id, i) {
+      var map = L.map(id, { zoomControl: true });
+      tiles[i].addTo(map);
+
+      new L.GPX(GPX, {
+        async: true,
+        polyline_options: { color: ROUTE_COLOR, weight: 3, opacity: 0.9 },
+        marker_options: { startIconUrl: null, endIconUrl: null, shadowUrl: null, wptIconUrls: { '': null } }
+      })
+      .on('loaded', function(e) {
+        map.invalidateSize();
+        map.fitBounds(e.target.getBounds(), { padding: [20, 20] });
+        map.zoomOut(2);
+      })
+      .addTo(map);
+    });
+  </script>
+</body>
+</html>
