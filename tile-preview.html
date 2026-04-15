@@ -20,7 +20,7 @@
   </style>
 </head>
 <body>
-  <h1>Tile style options — Pyrenees full trip route</h1>
+  <h1>Tile style options — centred over Pyrenees</h1>
   <div class="grid">
     <div class="map-card">
       <div class="map-label">1. CartoDB Voyager <span class="map-sub">modern, clean, readable</span></div>
@@ -43,47 +43,40 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"
     integrity="sha512-puJW3E/qXDqYp9IfhAI54BJEaWIfloJ7JWs7OeD5i6ruC9JZL1gERT1wjtwXFlh7CjE7ZJ+/vcRZRkIYIb6p4g=="
     crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/leaflet-gpx@1.7.0/gpx.js"
-    integrity="sha512-FatQYmF8k/KuvOgmwfRGRqlyzbG13etWz1GOO+JO6YQyhGgw5tVl9ihC9RS8S6iiS18CZAnZBvUoKHlGI6BTPQ=="
-    crossorigin="anonymous"></script>
   <script>
-    var GPX = 'pyrenees/gpx/full_trip.gpx';
-    var ROUTE_COLOR = '#1565C0';
+    var CENTER = [42.5, 1.5];
+    var ZOOM   = 7;
 
-    var tiles = [
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    var configs = [
+      {
+        id: 'map1',
+        url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
         attribution: '© <a href="https://carto.com/">CARTO</a> | © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         maxZoom: 19
-      }),
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      },
+      {
+        id: 'map2',
+        url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
         attribution: '© <a href="https://carto.com/">CARTO</a> | © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         maxZoom: 19
-      }),
-      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+      },
+      {
+        id: 'map3',
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
         attribution: '© <a href="https://www.esri.com/">Esri</a>',
         maxZoom: 18
-      }),
-      L.tileLayer('https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png', {
+      },
+      {
+        id: 'map4',
+        url: 'https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',
         attribution: '© <a href="https://www.cyclosm.org/">CyclOSM</a> | © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         maxZoom: 20
-      }),
+      }
     ];
 
-    ['map1','map2','map3','map4'].forEach(function(id, i) {
-      var map = L.map(id, { zoomControl: true });
-      tiles[i].addTo(map);
-
-      new L.GPX(GPX, {
-        async: true,
-        polyline_options: { color: ROUTE_COLOR, weight: 3, opacity: 0.9 },
-        marker_options: { startIconUrl: null, endIconUrl: null, shadowUrl: null, wptIconUrls: { '': null } }
-      })
-      .on('loaded', function(e) {
-        map.invalidateSize();
-        map.fitBounds(e.target.getBounds(), { padding: [20, 20] });
-        map.zoomOut(2);
-      })
-      .addTo(map);
+    configs.forEach(function(c) {
+      var map = L.map(c.id, { zoomControl: true }).setView(CENTER, ZOOM);
+      L.tileLayer(c.url, { attribution: c.attribution, maxZoom: c.maxZoom }).addTo(map);
     });
   </script>
 </body>
