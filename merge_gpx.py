@@ -105,6 +105,15 @@ FULL_TRIP_HTML = '''<!DOCTYPE html>
     map.invalidateSize();
     map.fitBounds(initialBounds, { padding: [20, 20] });
     map.zoomOut(1);
+
+    var layers = gpx.getLayers();
+    var start  = layers[0].getLatLngs()[0];
+    var endLayer = layers[layers.length - 1];
+    var end    = endLayer.getLatLngs()[endLayer.getLatLngs().length - 1];
+    L.circleMarker(start, { radius: 7, color: '#fff', weight: 2,
+      fillColor: '#2ecc71', fillOpacity: 1 }).addTo(map);
+    L.circleMarker(end,   { radius: 7, color: '#fff', weight: 2,
+      fillColor: '#e74c3c', fillOpacity: 1 }).addTo(map);
   })
   .on('error', function(e) { console.error('GPX load error', e); })
   .addTo(map);
