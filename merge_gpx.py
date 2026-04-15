@@ -78,9 +78,9 @@ FULL_TRIP_HTML = '''<!DOCTYPE html>
   new L.Control.MapButtons().addTo(map);
   map.attributionControl.setPrefix('');
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    maxZoom: 18
+  L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+    attribution: '© <a href="https://opentopomap.org">OpenTopoMap</a> (CC-BY-SA) | © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    maxZoom: 17
   }).addTo(map);
 
   var wrap = document.getElementById('map-wrap');
@@ -96,7 +96,7 @@ FULL_TRIP_HTML = '''<!DOCTYPE html>
 
   new L.GPX('gpx/full_trip.gpx', {
     async: true,
-    polyline_options: { color: '#e05c00', weight: 3, opacity: 0.9 },
+    polyline_options: { color: '#1565C0', weight: 3, opacity: 0.9 },
     marker_options: { startIconUrl: null, endIconUrl: null, shadowUrl: null, wptIconUrls: { '': null } }
   })
   .on('loaded', function(e) {
@@ -104,6 +104,7 @@ FULL_TRIP_HTML = '''<!DOCTYPE html>
     initialBounds = gpx.getBounds();
     map.invalidateSize();
     map.fitBounds(initialBounds, { padding: [20, 20] });
+    map.zoomOut(2);
   })
   .on('error', function(e) { console.error('GPX load error', e); })
   .addTo(map);
