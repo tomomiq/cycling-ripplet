@@ -96,7 +96,7 @@ FULL_TRIP_HTML = '''<!DOCTYPE html>
 
   new L.GPX('gpx/full_trip.gpx', {
     async: true,
-    polyline_options: { color: '#1565C0', weight: 3, opacity: 0.9 },
+    polyline_options: { color: '#1565C0', weight: 5, opacity: 0.9 },
     marker_options: { startIconUrl: null, endIconUrl: null, shadowUrl: null, wptIconUrls: { '': null } }
   })
   .on('loaded', function(e) {
@@ -104,7 +104,7 @@ FULL_TRIP_HTML = '''<!DOCTYPE html>
     initialBounds = gpx.getBounds();
     map.invalidateSize();
     map.fitBounds(initialBounds, { padding: [20, 20] });
-    map.zoomOut(2);
+    map.zoomOut(1);
   })
   .on('error', function(e) { console.error('GPX load error', e); })
   .addTo(map);
