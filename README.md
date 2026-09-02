@@ -6,7 +6,7 @@ Lightweight cycling route embeds for Squarespace travel log pages. Each ride is 
 
 - Each HTML file references a GPX file in the trip's `gpx/` subfolder
 - A stats bar shows Distance, Moving Time, Elevation Gain, and Weather (from Open-Meteo)
-- Files are hosted on GitHub Pages and embedded in Squarespace via an Embed Block
+- Files are hosted on GitHub Pages and embedded via iframes in ripplet.org trip pages
 - A merged `full_trip.html` shows all days on one map (no stats bar)
 
 ## Folder structure
@@ -49,7 +49,7 @@ cycling-ripplet/
    ```bash
    git add . && git commit -m "Add 2025_Western_Alps" && git push
    ```
-7. Open `embed_codes.txt` — copy each iframe code into the corresponding Squarespace Embed Block
+7. Open `embed_codes.txt` — copy each iframe code into the corresponding trip page in ripplet.org
 
 ## CONFIG options (in each HTML file)
 
