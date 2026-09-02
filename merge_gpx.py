@@ -97,7 +97,7 @@ FULL_TRIP_HTML = '''<!DOCTYPE html>
   new L.GPX('gpx/full_trip.gpx', {
     async: true,
     polyline_options: { color: '#1565C0', weight: 5, opacity: 0.9 },
-    marker_options: { startIconUrl: null, endIconUrl: null, shadowUrl: null, wptIconUrls: { '': null } }
+    marker_options: { startIconUrl: null, endIconUrl: null, shadowUrl: null, wptIconUrls: { '': null, 'LAP001': null } }
   })
   .on('loaded', function(e) {
     var gpx = e.target;
